@@ -30,7 +30,7 @@ const QuizApp: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 space-y-4">
-      <h1 className="text-2xl font-bold mb-4">用Google Form 做成的 Kahoot by 林協霆</h1>
+      <h1 className="text-2xl font-bold mb-4">用Google Form 做成的 Kahoot</h1>
       
       {/* File Upload Section */}
       <FileUploader
@@ -152,6 +152,9 @@ const QuizApp: React.FC = () => {
       {currentStats.loaded && (
         <QuizStats stats={currentStats} isLoading={isLoading} />
       )}
+      <div className="text-center text-sm text-gray-500 mt-8">
+        Ⓒ林協霆 made with ❤️
+      </div>
     </div>
   );
 };

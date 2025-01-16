@@ -1,3 +1,19 @@
+/**
+ * Prerequisites for using this CSV fetcher:
+ * 1. CSV Format Requirements:
+ *    - Must contain columns: '時間戳記' (timestamp), '您的員工編號' (employee number), '本題答案' (answer)
+ *    - Employee numbers should be valid integers
+ *    - Answers will be automatically trimmed and converted to uppercase
+ * 
+ * 2. CSV Access:
+ *    - CSV must be accessible via a URL
+ *    - URL must return a valid CSV file
+ *    - Server must allow CORS if fetching from a different domain
+ * 
+ * 3. Dependencies:
+ *    - Requires 'papaparse' package for CSV parsing
+ */
+
 import Papa from 'papaparse';
 import { Submission } from '../types';
 

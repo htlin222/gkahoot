@@ -23,6 +23,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import { useExplainImages } from '@/hooks/useExplainImages';
 
 interface FileUploaderProps {
   setQuestions: (questions: Question[]) => void;
@@ -39,6 +40,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 }) => {
   const [filename, setFilename] = useState<string | null>(null);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const explainImages = useExplainImages();
 
   useEffect(() => {
     if (downloadSuccess) {
@@ -179,18 +181,26 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
               }}
             >
               <CarouselContent className="cursor-grab active:cursor-grabbing h-full">
-                {['step1.png', 'step2.png'].map((image, index) => (
-                  <CarouselItem key={index} className="basis-full h-full pt-0">
-                    <div className="h-full w-full flex items-center justify-center">
-                      <img 
-                        src={`/explain/${image}`} 
-                        alt={`Step ${index + 1}`}
-                        className="max-w-full max-h-full object-contain"
-                        draggable="false"
-                      />
+                {explainImages.length > 0 ? (
+                  explainImages.map((image, index) => (
+                    <CarouselItem key={index} className="basis-full h-full pt-0">
+                      <div className="h-full w-full flex items-center justify-center">
+                        <img 
+                          src={`/explain/${image}`} 
+                          alt={`Step ${index + 1}`}
+                          className="max-w-full max-h-full object-contain"
+                          draggable="false"
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))
+                ) : (
+                  <CarouselItem className="basis-full h-full pt-0">
+                    <div className="h-full w-full flex items-center justify-center text-gray-500">
+                      No explanation images found
                     </div>
                   </CarouselItem>
-                ))}
+                )}
               </CarouselContent>
               <CarouselPrevious className="left-4" />
               <CarouselNext className="right-4" />
