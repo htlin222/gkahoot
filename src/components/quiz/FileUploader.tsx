@@ -1,8 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
 import { Question } from '../../types';
-import { Upload } from 'lucide-react';
+import { Upload, Download, Check, HelpCircle } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 interface FileUploaderProps {
   setQuestions: (questions: Question[]) => void;
@@ -18,6 +38,16 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   setCurrentQuestionIndex,
 }) => {
   const [filename, setFilename] = useState<string | null>(null);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+
+  useEffect(() => {
+    if (downloadSuccess) {
+      const timer = setTimeout(() => {
+        setDownloadSuccess(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [downloadSuccess]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -77,16 +107,87 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     });
   };
 
+  const handleDownloadTemplate = () => {
+    const headers = ['index', 'link', 'ans'];
+    const sampleData = ['1', 'https://example.com/image=csv', 'A'];
+    const csvContent = [
+      headers.join(','),
+      sampleData.join(',')
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'quiz_template.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
+    setDownloadSuccess(true);
+  };
+
   return (
     <div className="flex items-center gap-4">
       <Button
         variant="outline"
         onClick={() => document.getElementById('file-upload')?.click()}
-        className="relative"
+        className="relative hover:bg-gray-100"
       >
         <Upload className="h-4 w-4 mr-2" />
-        {filename ? filename : '上傳問題列表'}
+        {filename ? filename : '上傳問題清單'}
       </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadTemplate}
+              className="mr-2"
+            >
+              {downloadSuccess ? (
+                <Check className="h-4 w-4 mr-2" />
+              ) : (
+                <Download className="h-4 w-4 mr-2" />
+              )}
+              {downloadSuccess ? '已下載' : '下載範本'}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>下載 CSV 範本檔案，包含問題索引、線上csv連結和答案欄位</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <HelpCircle className="h-4 w-4 mr-2" />
+            說明
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[80%]">
+          <DialogHeader>
+            <DialogTitle>如何使用</DialogTitle>
+          </DialogHeader>
+          <Carousel className="w-full">
+            <CarouselContent>
+              {['step1.png', 'step2.png'].map((image, index) => (
+                <CarouselItem key={index}>
+                  <div className="p-1">
+                    <img 
+                      src={`/explain/${image}`} 
+                      alt={`Step ${index + 1}`}
+                      className="w-full h-auto object-contain"
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </DialogContent>
+      </Dialog>
+
       <input
         type="file"
         id="file-upload"
