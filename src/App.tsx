@@ -3,12 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ChevronRight, Upload, Trophy, LineChart, ArrowRight, AlertCircle } from 'lucide-react';
+import { ChevronRight, Upload, Trophy, LineChart, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileUploader } from './components/quiz/FileUploader';
 import { QuizStats } from './components/quiz/QuizStats';
 import { useQuizState } from './hooks/useQuizState';
-import { Loader2 } from 'lucide-react';
 
 const QuizApp: React.FC = () => {
   const {
@@ -23,7 +22,8 @@ const QuizApp: React.FC = () => {
     setShowAnswer,
     calculateQuestionScores,
     setError,
-    setIsLoading
+    setIsLoading,
+    calculateTotalRankings
   } = useQuizState();
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -66,6 +66,37 @@ const QuizApp: React.FC = () => {
           >
             下一題
           </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                <Trophy className="h-4 w-4 mr-2" />
+                總排名
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>總分排行榜 (前10名)</DialogTitle>
+              </DialogHeader>
+              <div className="max-h-[60vh] overflow-y-auto pr-4">
+                <div className="space-y-2">
+                  {calculateTotalRankings().slice(0, 10).map((ranking, index) => (
+                    <div
+                      key={ranking.employeeId}
+                      className="flex items-center justify-between p-3 bg-muted rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold min-w-[24px]">#{index + 1}</span>
+                        <span>{ranking.employeeId}</span>
+                      </div>
+                      <span className="font-semibold text-primary">
+                        {ranking.totalPoints} 分
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       )}
 

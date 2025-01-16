@@ -82,6 +82,28 @@ export const useQuizState = () => {
     return questionStats.get(currentQuestion.index) || initialStats;
   };
 
+  const calculateTotalRankings = () => {
+    const totalScores = new Map<string, number>();
+    
+    // Aggregate scores from all questions
+    questionStats.forEach((stats) => {
+      stats.scores.forEach((score) => {
+        const currentTotal = totalScores.get(score.employeeId) || 0;
+        totalScores.set(score.employeeId, currentTotal + score.points);
+      });
+    });
+
+    // Convert to array and sort by total score
+    const rankings = Array.from(totalScores.entries())
+      .map(([employeeId, totalPoints]) => ({
+        employeeId,
+        totalPoints
+      }))
+      .sort((a, b) => b.totalPoints - a.totalPoints);
+
+    return rankings;
+  };
+
   return {
     questions,
     setQuestions,
@@ -94,6 +116,7 @@ export const useQuizState = () => {
     setIsLoading,
     showAnswer,
     setShowAnswer,
-    calculateQuestionScores
+    calculateQuestionScores,
+    calculateTotalRankings
   };
 };
