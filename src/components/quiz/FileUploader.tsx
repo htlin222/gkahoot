@@ -164,27 +164,38 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             說明
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[80%]">
+        <DialogContent className="sm:max-w-[80%] max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle>如何使用</DialogTitle>
           </DialogHeader>
-          <Carousel className="w-full">
-            <CarouselContent>
-              {['step1.png', 'step2.png'].map((image, index) => (
-                <CarouselItem key={index}>
-                  <div className="p-1">
-                    <img 
-                      src={`/explain/${image}`} 
-                      alt={`Step ${index + 1}`}
-                      className="w-full h-auto object-contain"
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
+          <div className="overflow-y-auto flex-grow">
+            <Carousel 
+              className="w-full h-[70vh]"
+              opts={{
+                align: "center",
+                loop: true,
+                dragFree: true,
+                containScroll: "trimSnaps"
+              }}
+            >
+              <CarouselContent className="cursor-grab active:cursor-grabbing h-full">
+                {['step1.png', 'step2.png'].map((image, index) => (
+                  <CarouselItem key={index} className="basis-full h-full pt-0">
+                    <div className="h-full w-full flex items-center justify-center">
+                      <img 
+                        src={`/explain/${image}`} 
+                        alt={`Step ${index + 1}`}
+                        className="max-w-full max-h-full object-contain"
+                        draggable="false"
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-4" />
+              <CarouselNext className="right-4" />
+            </Carousel>
+          </div>
         </DialogContent>
       </Dialog>
 
