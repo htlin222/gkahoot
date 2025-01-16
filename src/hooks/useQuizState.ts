@@ -2,16 +2,18 @@ import { useState } from 'react';
 import { Question, Stats, Submission } from '../types';
 import { useCSVFetcher } from './useCSVFetcher';
 
+const initialStats: Stats = {
+  scores: [],
+  totalSubmissions: 0,
+  correctSubmissions: 0,
+  averageScore: 0,
+  loaded: false
+};
+
 export const useQuizState = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [currentStats, setCurrentStats] = useState<Stats>({
-    scores: [],
-    totalSubmissions: 0,
-    correctSubmissions: 0,
-    averageScore: 0,
-    loaded: false
-  });
+  const [questionStats, setQuestionStats] = useState<Map<number, Stats>>(new Map());
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -52,7 +54,7 @@ export const useQuizState = () => {
         timestamp: submission['時間戳記']
       }));
 
-      setCurrentStats({
+      const newStats: Stats = {
         scores,
         totalSubmissions: submissions.length,
         correctSubmissions: correctSubmissions.length,
@@ -60,19 +62,24 @@ export const useQuizState = () => {
           ? scores.reduce((acc, curr) => acc + curr.points, 0) / scores.length 
           : 0,
         loaded: true
+      };
+
+      setQuestionStats(prev => {
+        const newMap = new Map(prev);
+        newMap.set(currentQuestion.index, newStats);
+        return newMap;
       });
     } catch (error) {
       setError(`Failed to process submissions: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      setCurrentStats({
-        scores: [],
-        totalSubmissions: 0,
-        correctSubmissions: 0,
-        averageScore: 0,
-        loaded: false
-      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getCurrentStats = (): Stats => {
+    const currentQuestion = questions[currentQuestionIndex];
+    if (!currentQuestion) return initialStats;
+    return questionStats.get(currentQuestion.index) || initialStats;
   };
 
   return {
@@ -80,7 +87,7 @@ export const useQuizState = () => {
     setQuestions,
     currentQuestionIndex,
     setCurrentQuestionIndex,
-    currentStats,
+    currentStats: getCurrentStats(),
     error,
     setError,
     isLoading,
