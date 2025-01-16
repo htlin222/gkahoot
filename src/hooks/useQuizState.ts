@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Question, Stats, Submission } from '../types';
+import { Question, Stats } from '../types';
 import { useCSVFetcher } from './useCSVFetcher';
 
 const initialStats: Stats = {
@@ -51,15 +51,16 @@ export const useQuizState = () => {
       // Filter out duplicate employee IDs, keeping only the first submission
       const seenEmployeeIds = new Set<string>();
       const uniqueCorrectSubmissions = correctSubmissions.filter(sub => {
-        if (seenEmployeeIds.has(sub['您的員工編號'])) {
+        const empId = sub['您的員工編號'].toString();
+        if (seenEmployeeIds.has(empId)) {
           return false;
         }
-        seenEmployeeIds.add(sub['您的員工編號']);
+        seenEmployeeIds.add(empId);
         return true;
       });
 
       const scores = uniqueCorrectSubmissions.map((submission, index) => ({
-        employeeId: submission['您的員工編號'],
+        employeeId: submission['您的員工編號'].toString(),
         points: Math.max(130 - index * 2, 100),
         timestamp: submission['時間戳記']
       }));

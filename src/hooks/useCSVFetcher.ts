@@ -44,7 +44,7 @@ export const useCSVFetcher = () => {
               }));
             resolve(submissions);
           },
-          error: (error) => {
+          error: (error: Error) => {
             reject(new Error(`Failed to parse CSV data: ${error.message}`));
           }
         });

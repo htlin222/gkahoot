@@ -11,7 +11,7 @@ export interface Submission {
 }
 
 export interface Score {
-  employeeId: number;
+  employeeId: string;
   points: number;
   timestamp: string;
 }
