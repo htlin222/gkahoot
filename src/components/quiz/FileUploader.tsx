@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
 import { Question } from '../../types';
@@ -17,28 +17,34 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   setIsLoading,
   setCurrentQuestionIndex,
 }) => {
+  const [filename, setFilename] = useState<string | null>(null);
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     setError(null);
     setIsLoading(true);
 
     if (!file) {
-      setError('Please select a file');
+      setError('請選擇檔案');
       setIsLoading(false);
+      setFilename(null);
       return;
     }
 
     if (!file.name.endsWith('.csv')) {
-      setError('Please upload a CSV file');
+      setError('請上傳 CSV 檔案');
       setIsLoading(false);
+      setFilename(null);
       return;
     }
+
+    setFilename(file.name);
 
     Papa.parse<Record<string, string>>(file, {
       complete: (results) => {
         try {
           if (!results.data || results.data.length === 0) {
-            throw new Error('CSV file is empty');
+            throw new Error('CSV 檔案是空的');
           }
 
           const parsedQuestions = results.data
@@ -51,19 +57,19 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             .sort((a, b) => a.index - b.index);
 
           if (parsedQuestions.length === 0) {
-            throw new Error('No valid questions found in the CSV file');
+            throw new Error('在 CSV 檔案中找不到有效的問題');
           }
           
           setQuestions(parsedQuestions);
           setCurrentQuestionIndex(0);
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to parse CSV file');
+          setError(err instanceof Error ? err.message : 'CSV 檔案解析失敗');
         } finally {
           setIsLoading(false);
         }
       },
       error: (error) => {
-        setError(`Failed to parse CSV file: ${error.message}`);
+        setError(`CSV 檔案解析失敗：${error.message}`);
         setIsLoading(false);
       },
       header: true,
@@ -72,19 +78,22 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   };
 
   return (
-    <div className="flex items-center space-x-2">
-      <Button variant="outline" className="w-full" asChild>
-        <label className="cursor-pointer flex items-center justify-center gap-2">
-          <Upload size={16} />
-          Upload Question List
-          <input
-            type="file"
-            accept=".csv"
-            className="hidden"
-            onChange={handleFileUpload}
-          />
-        </label>
+    <div className="flex items-center gap-4">
+      <Button
+        variant="outline"
+        onClick={() => document.getElementById('file-upload')?.click()}
+        className="relative"
+      >
+        <Upload className="h-4 w-4 mr-2" />
+        {filename ? filename : '上傳問題列表'}
       </Button>
+      <input
+        type="file"
+        id="file-upload"
+        accept=".csv"
+        onChange={handleFileUpload}
+        className="hidden"
+      />
     </div>
   );
 };

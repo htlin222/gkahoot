@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FileUploader } from './components/quiz/FileUploader';
 import { QuizStats } from './components/quiz/QuizStats';
 import { useQuizState } from './hooks/useQuizState';
+import { Loader2 } from 'lucide-react';
 
 const QuizApp: React.FC = () => {
   const {
@@ -29,7 +30,7 @@ const QuizApp: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 space-y-4">
-      <h1 className="text-2xl font-bold mb-4">Quiz Statistics Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-4">測驗統計儀表板</h1>
       
       {/* File Upload Section */}
       <FileUploader
@@ -54,16 +55,16 @@ const QuizApp: React.FC = () => {
             onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))}
             disabled={currentQuestionIndex === 0}
           >
-            Previous
+            上一題
           </Button>
           <span>
-            Question {currentQuestionIndex + 1} of {questions.length}
+            第 {currentQuestionIndex + 1} 題，共 {questions.length} 題
           </span>
           <Button
             onClick={() => setCurrentQuestionIndex(Math.min(questions.length - 1, currentQuestionIndex + 1))}
             disabled={currentQuestionIndex === questions.length - 1}
           >
-            Next
+            下一題
           </Button>
         </div>
       )}
@@ -72,27 +73,41 @@ const QuizApp: React.FC = () => {
       {currentQuestion && (
         <Card className="mb-4">
           <CardHeader>
-            <CardTitle>Question {currentQuestion.index}</CardTitle>
+            <CardTitle>第 {currentQuestion.index} 題</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
-                <span className="font-semibold">Answer:</span>
+                <span className="font-semibold">答案：</span>
                 <Button
-                  variant="outline"
+                  variant={showAnswer ? "outline" : "secondary"}
                   size="sm"
                   onClick={() => setShowAnswer(!showAnswer)}
+                  className={`min-w-[100px] transition-all duration-300 ${
+                    showAnswer ? 'bg-green-500/10 text-green-600 border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)] hover:bg-green-500/20 hover:text-green-700' : ''
+                  }`}
                 >
-                  {showAnswer ? currentQuestion.ans : 'Show Answer'}
+                  {showAnswer ? currentQuestion.ans : '顯示答案'}
                 </Button>
               </div>
-              <Button
-                onClick={calculateQuestionScores}
-                disabled={isLoading}
-                className="w-full"
-              >
-                Calculate Scores
-              </Button>
+              <div className="flex items-center justify-end space-x-4">
+                <Button
+                  onClick={calculateQuestionScores}
+                  disabled={isLoading}
+                  size="sm"
+                  variant="outline"
+                  className="text-sm px-3 py-1 h-8"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Calculating...
+                    </>
+                  ) : (
+                    'Calculate Scores'
+                  )}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
