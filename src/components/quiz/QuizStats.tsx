@@ -14,7 +14,19 @@ export const QuizStats: React.FC<QuizStatsProps> = ({ stats, isLoading }) => {
     return <div>載入統計資料中...</div>;
   }
 
-  const top10Scores = stats.scores.slice(0, 10);
+  // Filter out scores after ENDOFIT
+  const filteredScores = stats.scores.slice();
+  const endofitIndex = stats.scores.findIndex(
+    score => score.employeeId.toString().toUpperCase() === 'ENDOFIT'
+  );
+  const validScores = endofitIndex !== -1 ? filteredScores.slice(0, endofitIndex + 1) : filteredScores;
+  const top10Scores = validScores.slice(0, 10);
+
+  // Recalculate stats based on filtered scores
+  const totalSubmissions = endofitIndex !== -1 ? endofitIndex + 1 : stats.totalSubmissions;
+  const correctSubmissions = endofitIndex !== -1 
+    ? validScores.filter(score => score.points > 0).length
+    : stats.correctSubmissions;
 
   const formatTime = (timestamp: string) => {
     // Assuming timestamp is in format "yyyy/m/d 上午/下午 h:mm:ss"
@@ -42,18 +54,18 @@ export const QuizStats: React.FC<QuizStatsProps> = ({ stats, isLoading }) => {
       <div className="flex gap-4 overflow-x-auto pb-2">
         <Card className="flex-1 min-w-[200px]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">總提交次數</CardTitle>
+            <CardTitle className="text-sm font-medium">總作答人數</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalSubmissions}</div>
+            <div className="text-2xl font-bold">{totalSubmissions}</div>
           </CardContent>
         </Card>
         <Card className="flex-1 min-w-[200px]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">正確提交次數</CardTitle>
+            <CardTitle className="text-sm font-medium">答對人數</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.correctSubmissions}</div>
+            <div className="text-2xl font-bold">{correctSubmissions}</div>
           </CardContent>
         </Card>
         <Card className="flex-1 min-w-[200px]">
@@ -62,8 +74,8 @@ export const QuizStats: React.FC<QuizStatsProps> = ({ stats, isLoading }) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats.totalSubmissions > 0
-                ? ((stats.correctSubmissions / stats.totalSubmissions) * 100).toFixed(1)
+              {totalSubmissions > 0
+                ? ((correctSubmissions / totalSubmissions) * 100).toFixed(1)
                 : '0'}%
             </div>
           </CardContent>

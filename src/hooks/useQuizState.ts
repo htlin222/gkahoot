@@ -48,7 +48,17 @@ export const useQuizState = () => {
         })
         .sort((a, b) => new Date(a['時間戳記']).getTime() - new Date(b['時間戳記']).getTime());
 
-      const scores = correctSubmissions.map((submission, index) => ({
+      // Filter out duplicate employee IDs, keeping only the first submission
+      const seenEmployeeIds = new Set<string>();
+      const uniqueCorrectSubmissions = correctSubmissions.filter(sub => {
+        if (seenEmployeeIds.has(sub['您的員工編號'])) {
+          return false;
+        }
+        seenEmployeeIds.add(sub['您的員工編號']);
+        return true;
+      });
+
+      const scores = uniqueCorrectSubmissions.map((submission, index) => ({
         employeeId: submission['您的員工編號'],
         points: Math.max(130 - index * 2, 100),
         timestamp: submission['時間戳記']
@@ -57,7 +67,7 @@ export const useQuizState = () => {
       const newStats: Stats = {
         scores,
         totalSubmissions: submissions.length,
-        correctSubmissions: correctSubmissions.length,
+        correctSubmissions: uniqueCorrectSubmissions.length,
         averageScore: scores.length > 0 
           ? scores.reduce((acc, curr) => acc + curr.points, 0) / scores.length 
           : 0,

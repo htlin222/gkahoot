@@ -30,7 +30,7 @@ const QuizApp: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 space-y-4">
-      <h1 className="text-2xl font-bold mb-4">測驗統計儀表板</h1>
+      <h1 className="text-2xl font-bold mb-4">用Google Form 做成的 Kahoot</h1>
       
       {/* File Upload Section */}
       <FileUploader
@@ -52,25 +52,31 @@ const QuizApp: React.FC = () => {
       {questions.length > 0 && (
         <div className="flex items-center space-x-4 mb-4">
           <Button
-            onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))}
+            onClick={() => {
+              setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1));
+              setShowAnswer(false);
+            }}
             disabled={currentQuestionIndex === 0}
           >
-            上一題
+            回到上一題
           </Button>
           <span>
             第 {currentQuestionIndex + 1} 題，共 {questions.length} 題
           </span>
           <Button
-            onClick={() => setCurrentQuestionIndex(Math.min(questions.length - 1, currentQuestionIndex + 1))}
+            onClick={() => {
+              setCurrentQuestionIndex(Math.min(questions.length - 1, currentQuestionIndex + 1));
+              setShowAnswer(false);
+            }}
             disabled={currentQuestionIndex === questions.length - 1}
           >
-            下一題
+            看看下一題
           </Button>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" className="ml-auto">
                 <Trophy className="h-4 w-4 mr-2" />
-                總排名
+                顯示總排名
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
@@ -109,7 +115,7 @@ const QuizApp: React.FC = () => {
           <CardContent>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
-                <span className="font-semibold">答案：</span>
+                <span className="font-semibold">正確答案：</span>
                 <Button
                   variant={showAnswer ? "outline" : "secondary"}
                   size="sm"
@@ -120,8 +126,6 @@ const QuizApp: React.FC = () => {
                 >
                   {showAnswer ? currentQuestion.ans : '顯示答案'}
                 </Button>
-              </div>
-              <div className="flex items-center justify-end space-x-4">
                 <Button
                   onClick={calculateQuestionScores}
                   disabled={isLoading}
@@ -132,10 +136,10 @@ const QuizApp: React.FC = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Calculating...
+                      計算中...稍安勿躁
                     </>
                   ) : (
-                    'Calculate Scores'
+                    '統計本題答題狀況'
                   )}
                 </Button>
               </div>
